@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" href="../../style/css/reset.css">
+	<link rel="stylesheet" href="../../style/css/base.css">
+	<link rel="stylesheet" href="../../style/css/font.css">
+	<link rel="stylesheet" href="../../style/css/app.css">
+	<link rel="stylesheet" href="../../style/css/returncard.css">
+	<title>生成密钥</title>
+</head>
+<body>
+<header class="c-header">
+	<div class="c-header-text fc61">生成密钥</div>
+	<a class="c-back fc61 fs20" onclick="history.go(-1)"><i class="icon-backicon"></i></a>
+</header>
+<section class="card_content ">
+	<div class="card_input_div">
+		<div class="card_input_title">手机号：</div>
+		<input type="tel" class="card_input_control phone_param" placeholder="请输入手机号码" />
+	</div>
+	<div class="card_input_div">
+		<div class="card_input_title">密码：</div>
+		<input type="password" class="card_input_control pwd_param" placeholder="请输入密码"/>
+	</div>
+	<div class="card_btn_block yellow kami_pro_hook">生成</div>
+
+	<!--pop-->
+	<section class="popmask displaynone">
+		<div class="pop_kami" >
+			<div class="kami_tit">
+				<span class="card_input_title">生成预览：</span>
+				<span class="close_icon right"></span>
+			</div>
+
+			<div id="warpper2" style="text-align: center;">
+				<canvas id="myCanvas2" width="340" height="200"></canvas>
+			</div>
+			<p class="kami_notice"><img src="../../style/img/help.png" > 请长按上图保存至手机</p>
+		</div>
+	</section>
+</section>
+
+<script src="../../style/js/jquery-3.1.1.min.js"></script>
+<script src="../../style/js/html2canvas.js"></script>
+<script>
+  $('.kami_pro_hook').on('touchend',function () {
+	var phone = $('.phone_param').val();
+	if(!(/^1[34578]\d{9}$/.test(phone))){
+	  alert("手机号码有误，请重填");
+	  return false;
+	}
+	var data={
+	  phone:phone,
+	  password:$('.pwd_param').val()
+	};
+
+	$.ajax({
+	   url:'http://118.193.168.199/quan/index.php?g=Portal&m=index&a=get_num',
+	   type:'get',
+	   data:data,
+	   dataType:'json',
+	   success:function(data){
+		   /*  alert('success')*/
+		     var text= data.text;
+			 $('.popmask').removeClass('displaynone');
+			 drawImg(text);
+	   },
+	  error:function (err) {
+	    alert('请求失败')
+	  }
+	});
+
+  });
+  function drawImg(text) {
+	text = '密钥:' + text;
+	var wrapper = document.getElementById('warpper2');
+	var myCanvas = document.getElementById('myCanvas2');
+	var bb = myCanvas.getContext('2d');
+
+	var img2 = new Image();
+	img2.crossOrigin = "anonymous";
+	img2.src = '../../style/img/kami.png';
+
+	img2.onload = function () {
+	  bb.drawImage(img2, 0, 0, 340, 200);
+	  bb.fillStyle = '#FFFFFF';//文字填充颜色
+	  bb.font = '16px microsoft yahei';
+	  bb.fillText(text, 60, 180);
+	}
+	setTimeout(function () {
+	  //myCanvas.toDataURL("image/jpg").replace("image/jpg", "image/octet-stream")
+	  var dataURL = myCanvas.toDataURL().replace("image/png", "image/octet-stream");
+	  /*console.log(dataURL);*/
+	  var img2 = new Image();
+	  img2.src = dataURL;
+	  wrapper.innerHTML = '';
+	  wrapper.appendChild(img2)
+	}, 2000)
+  }
+
+  $('.close_icon').click(function(){
+	$('.popmask').addClass('displaynone');
+  });
+  /*生成canvas*/
+
+</script>
+</body>
+</html>
